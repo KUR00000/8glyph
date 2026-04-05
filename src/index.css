@@ -1,0 +1,158 @@
+@import "tailwindcss";
+
+body {
+  background-color: #07070a;
+}
+
+/* ── Scattered pixel dots — SVG data URI, fully static, zero CPU ── */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  /*
+    4×4 tile: a single 1px dot at (1,1), faint white.
+    Spacing: 24px between dots — dense enough to feel textured,
+    sparse enough to not look like a grid or cause visual noise.
+  */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Crect x='0' y='0' width='2' height='2' fill='rgba(255,255,255,0.06)'/%3E%3C/svg%3E");
+  background-size: 24px 24px;
+}
+
+/* ── Colour atmosphere: warm top-left, cool bottom-right, dark vignette ── */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 0% 0%,   rgba(255, 80, 10, 0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 100% 100%, rgba(80, 0, 200, 0.06) 0%, transparent 70%),
+    radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.6) 100%);
+}
+
+/* ── Icon grid card ── */
+.pixel-card {
+  border-right: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  /* No border-radius — hard pixel edges */
+  border-radius: 0 !important;
+  image-rendering: pixelated;
+  transition: background-color 0.15s;
+}
+.pixel-card:hover {
+  background-color: #0e0e10 !important;
+  border-color: rgba(255,255,255,0.08);
+}
+/* Top + left border for the outer grid edge */
+.pixel-grid-wrap {
+  border-left: 1px solid rgba(255,255,255,0.05);
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+/* ── Pixel corner decoration ── */
+/* .pxl-box: hard-edged container with 4-corner pixel "L" marks.        */
+/* The border colour is set via --pxl-c (defaults to rgba(255,255,255,.15)) */
+.pxl-box {
+  position: relative;
+  border-radius: 0 !important;
+  --pxl-c: rgba(255,255,255,0.18);
+  --pxl-s: 8px;   /* arm length  */
+  --pxl-t: 2px;   /* arm thickness */
+}
+/* Four corner marks via generated content on two pseudo-elements            */
+/* We use box-shadow stacking to draw all 4 corners from a single point.     */
+.pxl-box::before,
+.pxl-box::after {
+  content: "";
+  position: absolute;
+  width: var(--pxl-t);
+  height: var(--pxl-t);
+  pointer-events: none;
+  z-index: 10;
+  transition: background-color 0.15s;
+}
+/* Top-left L */
+.pxl-box::before {
+  top: 0; left: 0;
+  background: var(--pxl-c);
+  box-shadow:
+    /* top arm */
+    calc(var(--pxl-s) - var(--pxl-t)) 0           0 0 var(--pxl-c),
+    calc(var(--pxl-s) / 2 - var(--pxl-t)) 0        0 0 var(--pxl-c),
+    /* left arm */
+    0 calc(var(--pxl-s) - var(--pxl-t))            0 0 var(--pxl-c),
+    0 calc(var(--pxl-s) / 2 - var(--pxl-t))        0 0 var(--pxl-c),
+    /* bottom-right corner origin */
+    calc(100vw - var(--pxl-t)) calc(100vh - var(--pxl-t)) 0 0 transparent;
+}
+/* Top-right + bottom-left + bottom-right using absolute positioning */
+.pxl-box::after {
+  top: 0; right: 0;
+  background: var(--pxl-c);
+  box-shadow:
+    /* top arm going left */
+    calc(-1 * (var(--pxl-s) - var(--pxl-t))) 0     0 0 var(--pxl-c),
+    calc(-1 * (var(--pxl-s) / 2 - var(--pxl-t))) 0 0 0 var(--pxl-c),
+    /* right arm going down */
+    0 calc(var(--pxl-s) - var(--pxl-t))            0 0 var(--pxl-c),
+    0 calc(var(--pxl-s) / 2 - var(--pxl-t))        0 0 var(--pxl-c);
+}
+
+/* ── Simpler approach: use 4 child spans. Applied via .pxl-corners class. ── */
+/* We inject corner spans via React (PixelCorners component) for full control */
+
+/* Corner span: base styles */
+.pxl-corner {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10;
+}
+.pxl-corner-tl { top: 0; left: 0; }
+.pxl-corner-tr { top: 0; right: 0; }
+.pxl-corner-bl { bottom: 0; left: 0; }
+.pxl-corner-br { bottom: 0; right: 0; }
+
+/* Retain clip-path versions for backward compat */
+.pixel-clip-sm  { clip-path: polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px); }
+.pixel-clip-md  { clip-path: polygon(10px 0%,100% 0%,100% calc(100% - 10px),calc(100% - 10px) 100%,0% 100%,0% 10px); }
+.pixel-clip-lg  { clip-path: polygon(16px 0%,100% 0%,100% calc(100% - 16px),calc(100% - 16px) 100%,0% 100%,0% 16px); }
+
+/* Pixelated 8-bit Scrollbar */
+::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+  background: #000;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+  border-left: 2px solid #222;
+  border-right: 2px solid #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ff7a45;
+  border: 2px solid #000;
+  box-shadow: inset 2px 2px 0px 0px #ffb394, inset -2px -2px 0px 0px #cc4400;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff9c73;
+  box-shadow: inset 2px 2px 0px 0px #ffd0bc, inset -2px -2px 0px 0px #e65c22;
+}
+
+::-webkit-scrollbar-corner {
+  background: #000;
+}
+
+/* Hide scrollbar for specific elements but keep functionality */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
