@@ -60,7 +60,11 @@ export default function StudioView() {
 
   useEffect(() => {
     window.addEventListener('pointerup', handlePointerUp);
-    return () => window.removeEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointercancel', handlePointerUp);
+    return () => {
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerUp);
+    };
   }, []);
 
   const clearGrid = () => {
@@ -78,20 +82,23 @@ export default function StudioView() {
         <div className="flex items-center gap-2 bg-white/[0.04] border border-white/8 rounded-xl p-1">
           <button
             onClick={() => setDrawMode('draw')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold tracking-wider transition-all ${drawMode === 'draw' ? 'bg-[#ff7a45] text-black' : 'text-white/40 hover:text-white'}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold tracking-wider active:scale-[0.96] ${drawMode === 'draw' ? 'bg-[#ff7a45] text-black' : 'text-white/40 hover:text-white'}`}
+            style={{ transition: 'transform 100ms var(--ease-out), background-color 120ms ease, color 120ms ease' }}
           >
             <Paintbrush size={13} /> Draw
           </button>
           <button
             onClick={() => setDrawMode('erase')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold tracking-wider transition-all ${drawMode === 'erase' ? 'bg-white text-black' : 'text-white/40 hover:text-white'}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold tracking-wider active:scale-[0.96] ${drawMode === 'erase' ? 'bg-white text-black' : 'text-white/40 hover:text-white'}`}
+            style={{ transition: 'transform 100ms var(--ease-out), background-color 120ms ease, color 120ms ease' }}
           >
             <Eraser size={13} /> Erase
           </button>
           <div className="w-px h-5 bg-white/10 mx-1" />
           <button
             onClick={clearGrid}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold tracking-wider text-white/40 hover:text-white transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold tracking-wider text-white/40 hover:text-white active:scale-[0.96]"
+            style={{ transition: 'transform 100ms var(--ease-out), color 120ms ease' }}
           >
             <RefreshCw size={13} /> Clear
           </button>
@@ -112,7 +119,8 @@ export default function StudioView() {
                     setMatrixSize(size);
                     setMatrix(Array(size).fill('0'.repeat(size)));
                   }}
-                  className={`w-9 h-9 text-[10px] tracking-widest font-bold rounded-lg transition-all ${matrixSize === size ? 'bg-white text-black' : 'bg-white/[0.04] border border-white/8 text-white/40 hover:text-white hover:border-white/20'}`}
+                  className={`w-9 h-9 text-[10px] tracking-widest font-bold rounded-lg active:scale-[0.96] ${matrixSize === size ? 'bg-white text-black' : 'bg-white/[0.04] border border-white/8 text-white/40 hover:text-white hover:border-white/20'}`}
+                  style={{ transition: 'transform 100ms var(--ease-out), background-color 120ms ease, color 120ms ease, border-color 120ms ease' }}
                 >
                   {size}²
                 </button>
@@ -138,14 +146,21 @@ export default function StudioView() {
                     key={`${rIdx}-${cIdx}`}
                     onPointerDown={() => handlePointerDown(rIdx, cIdx)}
                     onPointerEnter={() => handlePointerEnter(rIdx, cIdx)}
-                    className={`w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg cursor-crosshair transition-all duration-75 ${
+                    className={`w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg cursor-crosshair ${
                       cell === '1'
                         ? 'shadow-[0_0_12px_rgba(255,255,255,0.3)]'
                         : 'bg-white/[0.04] hover:bg-white/10 border border-white/5'
                     }`}
                     style={cell === '1' ? {
-                      background: `linear-gradient(135deg, ${color1}, ${color2})`
-                    } : {}}
+                      background: `linear-gradient(135deg, ${color1}, ${color2})`,
+                      transition: 'background 60ms ease, box-shadow 60ms ease',
+                      willChange: 'background, box-shadow',
+                      transform: 'translateZ(0)',
+                    } : {
+                      transition: 'background-color 60ms ease, border-color 60ms ease',
+                      willChange: 'background-color, border-color',
+                      transform: 'translateZ(0)',
+                    }}
                   />
                 ))
               )}
@@ -180,7 +195,8 @@ export default function StudioView() {
                 <button
                   key={anim}
                   onClick={() => setAnimation(anim)}
-                  className={`px-3 py-1.5 text-[9px] tracking-widest font-bold rounded-lg uppercase transition-all ${animation === anim ? 'bg-[#ff7a45] text-black' : 'bg-white/[0.06] text-white/40 hover:text-white border border-white/5'}`}
+                  className={`px-3 py-1.5 text-[9px] tracking-widest font-bold rounded-lg uppercase active:scale-[0.96] ${animation === anim ? 'bg-[#ff7a45] text-black' : 'bg-white/[0.06] text-white/40 hover:text-white border border-white/5'}`}
+                  style={{ transition: 'transform 100ms var(--ease-out), background-color 120ms ease, color 120ms ease, border-color 120ms ease' }}
                 >
                   {anim}
                 </button>
@@ -228,11 +244,12 @@ export default function StudioView() {
                   key={palette.name}
                   onClick={() => { setColor1(palette.c1); setColor2(palette.c2); }}
                   title={palette.name}
-                  className={`group flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all ${
+                  className={`group flex flex-col items-center gap-1.5 p-2 rounded-xl border active:scale-[0.96] ${
                     color1 === palette.c1 && color2 === palette.c2
                       ? 'border-white/30 bg-white/5'
                       : 'border-white/5 hover:border-white/20 hover:bg-white/[0.03]'
                   }`}
+                  style={{ transition: 'transform 100ms var(--ease-out), background-color 120ms ease, border-color 120ms ease' }}
                 >
                   <div className="flex w-full h-5 rounded-md overflow-hidden">
                     <div className="flex-1" style={{ backgroundColor: palette.c1 }} />

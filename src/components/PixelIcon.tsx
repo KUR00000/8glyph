@@ -50,6 +50,7 @@ export const PixelIcon = ({
         gridTemplateRows: `repeat(${height}, minmax(0, 1fr))`,
         width: `${width * pixelSize}px`,
         height: `${height * pixelSize}px`,
+        willChange: 'transform',
       }}
       initial="initial"
       whileHover={animateOn === 'hover' ? "active" : undefined}
@@ -105,11 +106,11 @@ export const PixelIcon = ({
               scale: [1, 0.2, 1.2, 1],
               opacity: [1, 0.5, 1, 1],
               transition: {
-                duration: 0.4,
-                delay: distance * 0.03,
-                ease: "easeInOut",
+                duration: 0.35,
+                delay: distance * 0.02,
+                ease: [0.4, 0, 0.2, 1],
                 repeat: animateOn === 'always' ? Infinity : 0,
-                repeatDelay: animateOn === 'always' ? 1.5 : 0
+                repeatDelay: animateOn === 'always' ? 1.2 : 0
               }
             };
           } else if (animationType === 'flicker') {
@@ -128,11 +129,11 @@ export const PixelIcon = ({
                 color,
               ],
               transition: {
-                duration: 2.5,
+                duration: 2.0,
                 repeat: animateOn === 'always' ? Infinity : 0,
                 times: [0, 0.05, 0.1, 0.4, 0.45, 0.5, 0.55, 0.6, 0.9, 1],
                 ease: "linear",
-                delay: (x % 3) * 0.05
+                delay: (x % 3) * 0.03
               }
             };
           } else if (animationType === 'pulse') {
@@ -140,10 +141,10 @@ export const PixelIcon = ({
               scale: [1, 0.85, 1],
               opacity: [1, 0.6, 1],
               transition: {
-                duration: 1.5,
+                duration: 1.2,
                 repeat: animateOn === 'always' ? Infinity : 0,
-                ease: "easeInOut",
-                delay: distance * 0.05
+                ease: [0.4, 0, 0.2, 1],
+                delay: distance * 0.03
               }
             };
           } else if (animationType === 'disco') {
@@ -157,10 +158,10 @@ export const PixelIcon = ({
               backgroundColor: cycled,
               scale: [1, 1.08, 1, 1.08, 1],
               transition: {
-                duration: 0.8,
+                duration: 0.6,
                 repeat: animateOn === 'always' ? Infinity : 0,
                 ease: "linear",
-                delay: ((x * y) % 7) * 0.04,
+                delay: ((x * y) % 7) * 0.03,
               }
             };
           } else if (animationType === 'bounce') {
@@ -168,10 +169,10 @@ export const PixelIcon = ({
               y: [0, -10, 0],
               scale: [1, 1.1, 1],
               transition: {
-                duration: 0.8,
+                duration: 0.6,
                 repeat: animateOn === 'always' ? Infinity : 0,
-                ease: "easeInOut",
-                delay: distance * 0.05
+                ease: [0.4, 0, 0.2, 1],
+                delay: distance * 0.03
               }
             };
           } else if (animationType === 'glitch') {
@@ -181,11 +182,11 @@ export const PixelIcon = ({
               backgroundColor: glitchColors,
               scale: [1, 1.1, 0.9, 1.05, 1],
               transition: {
-                duration: 0.35,
+                duration: 0.3,
                 repeat: animateOn === 'always' ? Infinity : 0,
-                repeatDelay: animateOn === 'always' ? 1.8 : 0,
+                repeatDelay: animateOn === 'always' ? 1.5 : 0,
                 ease: "linear",
-                delay: (x % 2) * 0.08
+                delay: (x % 2) * 0.06
               }
             };
           }
@@ -199,7 +200,7 @@ export const PixelIcon = ({
             variants.active.opacity = [1, 0.25, 1, 0.85, 1, 0.9, 1];
             variants.active.transition = {
               ...variants.active.transition,
-              duration: 1.4 + pseudoRandom * 1.8,
+              duration: 1.2 + pseudoRandom * 1.5,
               repeat: Infinity,
               repeatType: "mirror",
               ease: "linear",
@@ -210,7 +211,10 @@ export const PixelIcon = ({
             <motion.div
               key={`${x}-${y}-${animationType}`}
               className="w-full h-full rounded-[1px]"
-              style={{ backgroundColor: color }}
+              style={{ 
+                backgroundColor: color,
+                willChange: 'transform, opacity',
+              }}
               variants={variants}
             />
           );

@@ -1,26 +1,67 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
 
-body {
-  background-color: #07070a;
+/* ── Design Tokens ── */
+:root {
+  /* Border radius system — soft, rounded aesthetic */
+  --radius-sm: 8px;
+  /* Small elements, badges */
+  --radius-md: 12px;
+  /* Buttons, cards, inputs */
+  --radius-lg: 16px;
+  /* Navbar, panels, code blocks */
+  --radius-xl: 20px;
+  /* Modal dialog, hero cards */
+
+  /* Custom easing curves — Emil's approach */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Color tokens */
+  --accent: 255, 100, 50;
+  --accent-2: 180, 60, 255;
+  --accent-3: 0, 210, 255;
+  --surface: 7, 7, 11;
+  --surface-raised: 11, 11, 16;
+  --surface-hover: 16, 16, 22;
+
+  /* Typography */
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'Space Mono', 'Courier New', monospace;
 }
 
-/* ── Scattered pixel dots — SVG data URI, fully static, zero CPU ── */
+/* ── Base ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: rgb(var(--surface));
+  font-family: var(--font-sans);
+  color: #fff;
+}
+
+/* ── Scattered pixel dots — static, zero CPU ── */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -2;
   pointer-events: none;
-  /*
-    4×4 tile: a single 1px dot at (1,1), faint white.
-    Spacing: 24px between dots — dense enough to feel textured,
-    sparse enough to not look like a grid or cause visual noise.
-  */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Crect x='0' y='0' width='2' height='2' fill='rgba(255,255,255,0.06)'/%3E%3C/svg%3E");
-  background-size: 24px 24px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Crect x='0' y='0' width='1' height='1' fill='rgba(255,255,255,0.035)'/%3E%3C/svg%3E");
+  background-size: 32px 32px;
 }
 
-/* ── Colour atmosphere: warm top-left, cool bottom-right, dark vignette ── */
+/* ── Colour atmosphere ── */
 body::after {
   content: "";
   position: fixed;
@@ -28,131 +69,521 @@ body::after {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 60% 50% at 0% 0%,   rgba(255, 80, 10, 0.07) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 40% at 100% 100%, rgba(80, 0, 200, 0.06) 0%, transparent 70%),
-    radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.6) 100%);
+    radial-gradient(ellipse 70% 60% at 0% 0%, rgba(255, 80, 10, 0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 55% 45% at 100% 100%, rgba(100, 0, 220, 0.055) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 60% 30%, rgba(0, 180, 255, 0.03) 0%, transparent 70%),
+    radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+/* ── Buttons: scale-on-press (Emil's rule) ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: transform 100ms var(--ease-out), background-color 120ms ease, opacity 120ms ease, border-color 120ms ease;
+  position: relative;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Scale on press — every pressable element */
+.btn:active {
+  transform: scale(0.96) translateZ(0);
+}
+
+.btn-primary {
+  background-color: rgb(var(--accent));
+  color: #000;
+  padding: 0.75rem 1.5rem;
+}
+
+.btn-primary:hover {
+  background-color: rgba(var(--accent), 0.88);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.45);
+  padding: 0.625rem 1.25rem;
+}
+
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* ── Icon grid card ── */
 .pixel-card {
-  border-right: 1px solid rgba(255,255,255,0.05);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  /* No border-radius — hard pixel edges */
-  border-radius: 0 !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.042);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.042);
+  border-radius: var(--radius-md) !important;
   image-rendering: pixelated;
-  transition: background-color 0.15s;
-}
-.pixel-card:hover {
-  background-color: #0e0e10 !important;
-  border-color: rgba(255,255,255,0.08);
-}
-/* Top + left border for the outer grid edge */
-.pixel-grid-wrap {
-  border-left: 1px solid rgba(255,255,255,0.05);
-  border-top: 1px solid rgba(255,255,255,0.05);
-}
-
-/* ── Pixel corner decoration ── */
-/* .pxl-box: hard-edged container with 4-corner pixel "L" marks.        */
-/* The border colour is set via --pxl-c (defaults to rgba(255,255,255,.15)) */
-.pxl-box {
+  cursor: pointer;
+  /* Only transition background — not all */
+  transition: background-color 150ms ease, transform 150ms var(--ease-out);
   position: relative;
-  border-radius: 0 !important;
-  --pxl-c: rgba(255,255,255,0.18);
-  --pxl-s: 8px;   /* arm length  */
-  --pxl-t: 2px;   /* arm thickness */
-}
-/* Four corner marks via generated content on two pseudo-elements            */
-/* We use box-shadow stacking to draw all 4 corners from a single point.     */
-.pxl-box::before,
-.pxl-box::after {
-  content: "";
-  position: absolute;
-  width: var(--pxl-t);
-  height: var(--pxl-t);
-  pointer-events: none;
-  z-index: 10;
-  transition: background-color 0.15s;
-}
-/* Top-left L */
-.pxl-box::before {
-  top: 0; left: 0;
-  background: var(--pxl-c);
-  box-shadow:
-    /* top arm */
-    calc(var(--pxl-s) - var(--pxl-t)) 0           0 0 var(--pxl-c),
-    calc(var(--pxl-s) / 2 - var(--pxl-t)) 0        0 0 var(--pxl-c),
-    /* left arm */
-    0 calc(var(--pxl-s) - var(--pxl-t))            0 0 var(--pxl-c),
-    0 calc(var(--pxl-s) / 2 - var(--pxl-t))        0 0 var(--pxl-c),
-    /* bottom-right corner origin */
-    calc(100vw - var(--pxl-t)) calc(100vh - var(--pxl-t)) 0 0 transparent;
-}
-/* Top-right + bottom-left + bottom-right using absolute positioning */
-.pxl-box::after {
-  top: 0; right: 0;
-  background: var(--pxl-c);
-  box-shadow:
-    /* top arm going left */
-    calc(-1 * (var(--pxl-s) - var(--pxl-t))) 0     0 0 var(--pxl-c),
-    calc(-1 * (var(--pxl-s) / 2 - var(--pxl-t))) 0 0 0 var(--pxl-c),
-    /* right arm going down */
-    0 calc(var(--pxl-s) - var(--pxl-t))            0 0 var(--pxl-c),
-    0 calc(var(--pxl-s) / 2 - var(--pxl-t))        0 0 var(--pxl-c);
+  overflow: hidden;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
-/* ── Simpler approach: use 4 child spans. Applied via .pxl-corners class. ── */
-/* We inject corner spans via React (PixelCorners component) for full control */
+/* Hover effects — pointer devices only */
+@media (hover: hover) and (pointer: fine) {
+  .pixel-card:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+    transform: scale(1.03) translateZ(0);
+  }
+}
 
-/* Corner span: base styles */
+/* Press feedback — works on all devices including touch */
+.pixel-card:active {
+  transform: scale(0.96) translateZ(0);
+  transition: transform 100ms var(--ease-out), background-color 150ms ease;
+}
+
+/* Top + left outer edge */
+.pixel-grid-wrap {
+  border-left: 1px solid rgba(255, 255, 255, 0.042);
+  border-top: 1px solid rgba(255, 255, 255, 0.042);
+}
+
+/* ── Corner decoration ── */
 .pxl-corner {
   position: absolute;
   pointer-events: none;
   z-index: 10;
 }
-.pxl-corner-tl { top: 0; left: 0; }
-.pxl-corner-tr { top: 0; right: 0; }
-.pxl-corner-bl { bottom: 0; left: 0; }
-.pxl-corner-br { bottom: 0; right: 0; }
 
-/* Retain clip-path versions for backward compat */
-.pixel-clip-sm  { clip-path: polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px); }
-.pixel-clip-md  { clip-path: polygon(10px 0%,100% 0%,100% calc(100% - 10px),calc(100% - 10px) 100%,0% 100%,0% 10px); }
-.pixel-clip-lg  { clip-path: polygon(16px 0%,100% 0%,100% calc(100% - 16px),calc(100% - 16px) 100%,0% 100%,0% 16px); }
+.pxl-corner-tl {
+  top: 0;
+  left: 0;
+}
 
-/* Pixelated 8-bit Scrollbar */
+.pxl-corner-tr {
+  top: 0;
+  right: 0;
+}
+
+.pxl-corner-bl {
+  bottom: 0;
+  left: 0;
+}
+
+.pxl-corner-br {
+  bottom: 0;
+  right: 0;
+}
+
+/* ── Stagger animation helper ── */
+/* Keeps 30-80ms gaps as per Emil's rule */
+.stagger-item {
+  opacity: 0;
+  transform: translateY(6px);
+  animation: staggerFadeIn 280ms var(--ease-out) forwards;
+}
+
+.stagger-item:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.stagger-item:nth-child(2) {
+  animation-delay: 40ms;
+}
+
+.stagger-item:nth-child(3) {
+  animation-delay: 80ms;
+}
+
+.stagger-item:nth-child(4) {
+  animation-delay: 120ms;
+}
+
+.stagger-item:nth-child(5) {
+  animation-delay: 160ms;
+}
+
+.stagger-item:nth-child(6) {
+  animation-delay: 200ms;
+}
+
+.stagger-item:nth-child(7) {
+  animation-delay: 240ms;
+}
+
+.stagger-item:nth-child(8) {
+  animation-delay: 280ms;
+}
+
+@keyframes staggerFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Tooltip-like instant popovers ── */
+/* Use @starting-style for entry animations */
+.panel-enter {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out);
+}
+
+/* ── Tag / badge ── */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.025);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border-radius: var(--radius-sm);
+  position: relative;
+}
+
+/* ── Live dot ── */
+.live-dot {
+  width: 6px;
+  height: 6px;
+  background: rgb(var(--accent));
+  animation: livePulse 1.4s ease infinite;
+}
+
+@keyframes livePulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* ── Code block ── */
+.code-block {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  overflow-x: auto;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-lg);
+  position: relative;
+}
+
+/* ── Tabs with clip-based active indicator ── */
+/* Emil's "duplicate tab + clip" technique for perfect color transitions */
+.nav-tab {
+  position: relative;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: color 200ms ease;
+}
+
+.nav-tab:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nav-tab:active {
+  transform: scale(0.97);
+  transition: transform 100ms var(--ease-out), color 200ms ease;
+}
+
+/* ── Smooth input ── */
+.search-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: #fff;
+  outline: none;
+  /* Precise transition — not 'all' */
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.search-input:focus {
+  border-color: rgba(var(--accent), 0.5);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+/* ── Scrollbar ── */
 ::-webkit-scrollbar {
-  width: 14px;
-  height: 14px;
-  background: #000;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
-  border-left: 2px solid #222;
-  border-right: 2px solid #000;
+  background: #080808;
+  border-left: 1px solid #1a1a1a;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #ff7a45;
-  border: 2px solid #000;
-  box-shadow: inset 2px 2px 0px 0px #ffb394, inset -2px -2px 0px 0px #cc4400;
+  background: rgba(var(--accent), 0.7);
+  border: 1px solid #000;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #ff9c73;
-  box-shadow: inset 2px 2px 0px 0px #ffd0bc, inset -2px -2px 0px 0px #e65c22;
+  background: rgba(var(--accent), 0.9);
 }
 
 ::-webkit-scrollbar-corner {
   background: #000;
 }
 
-/* Hide scrollbar for specific elements but keep functionality */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* ── Hover only on pointer devices (Emil's accessibility rule) ── */
+/* Hover effects are wrapped in @media (hover: hover) and (pointer: fine) above */
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+
+  /* Set all animation durations to 0.01ms */
+  .stagger-item {
+    animation-duration: 0.01ms;
+    animation-delay: 0ms;
+    /* Set all stagger delays to 0ms */
+  }
+
+  .btn,
+  .nav-tab,
+  .pixel-card,
+  .search-input,
+  .filter-chip,
+  .stat-card {
+    transition-duration: 0.01ms;
+  }
+
+  /* Disable pulse animation */
+  .live-dot {
+    animation: none;
+    opacity: 1;
+  }
+
+  /* Keep opacity and color transitions for comprehension */
+  * {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    transition-property: opacity, color, background-color, border-color !important;
+  }
+}
+
+/* ── Dialog overlay: enter from scale(0.95) not scale(0) ── */
+.dialog-enter {
+  animation: dialogEnter 220ms var(--ease-out) forwards;
+}
+
+@keyframes dialogEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ── Marquee ── */
+.marquee-track {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  white-space: nowrap;
+}
+
+/* ── Divider accent ── */
+.accent-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(var(--accent), 0.35), transparent);
+}
+
+/* ── Stat card ── */
+.stat-card {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  background: rgba(255, 255, 255, 0.012);
+  padding: 0.875rem 1.25rem;
+  border-radius: var(--radius-md);
+  transition: border-color 200ms ease, background-color 200ms ease;
+}
+
+.stat-card:hover {
+  background: rgba(255, 255, 255, 0.025);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ── Surface panel ── */
+.panel {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  background: rgba(var(--surface-raised), 1);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* ── Filter chip ── */
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.875rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  background: rgba(255, 255, 255, 0.025);
+  color: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  /* precise transition */
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, transform 100ms var(--ease-out);
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Hover effects — pointer devices only */
+@media (hover: hover) and (pointer: fine) {
+  .filter-chip:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.13);
+    color: rgba(255, 255, 255, 0.8);
+  }
+}
+
+.filter-chip:active {
+  transform: scale(0.96) translateZ(0);
+}
+
+.filter-chip.active {
+  background: rgba(var(--accent), 1);
+  border-color: rgba(var(--accent), 1);
+  color: #000;
+}
+
+/* ── Liquid Glass Dock ── */
+/* Apple-style liquid glass: layered blur + gradient reflection + subtle border */
+.dock-glass {
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.85),
+    0 0 0 0.5px rgba(255, 255, 255, 0.08) inset,
+    0 1px 0 0 rgba(255, 255, 255, 0.18) inset;
+}
+
+/* Dock item hover — magnification lift */
+.dock-item {
+  transition: transform 160ms var(--ease-out);
+  will-change: transform;
+}
+
+/* ── Filter button (inline component) ── */
+.filter-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 100ms var(--ease-out), background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Hover effects — pointer devices only */
+@media (hover: hover) and (pointer: fine) {
+  .filter-btn.inactive:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 1);
+    transform: scale(1.02) translateZ(0);
+  }
+}
+
+.filter-btn:active {
+  transform: scale(0.96) translateZ(0);
+}
+
+.filter-btn.active {
+  background: rgb(255, 122, 69);
+  color: #000;
+  border: none;
+}
+
+.filter-btn.inactive {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.35);
 }
