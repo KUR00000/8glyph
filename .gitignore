@@ -6,3 +6,15 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Package manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
